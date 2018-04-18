@@ -1,0 +1,9 @@
+<p>A not-so-well documented feature in AWS RDS is the ability of creating multiple databases under a single database instance. This can be a low-cost solution for test environments, since RDS charges per instance. You can lump together multiple test databases into a single instance and save some bucks, for example.</p>
+
+<p>Why not production? All instance resources will be shared among the databases, causing one database to affect the performance of the others. Another issue would be the database parameter group, which would have to be the same for all databases under the instance. All RDS backups are also instance-level, so you would be out of luck if you needed a backup for one of the databases only. The AWS dashboard does not seem to support this either, so you won’t see a list of the databases under the instance.</p>
+<h3>How To</h3>
+<p>There’s no way of creating other databases from the AWS dashboard or even from the API. You will have to rely on the DB engine’s commands to do it. For PostgreSQL, for example, connect to the instance (psql -h &lt;RDS_endpoint&gt; -U &lt;master_user&gt;) and run the following command:</p>
+
+<p><code>CREATE DATABASE &lt;new_db_name&gt;;</code></p>
+
+<p>From now on, you can connect to this DB with the regular psql command. To list the databases under the current instance, run <code>\list</code> (or <code>\l</code>). To switch databases, use <code>\connect &lt;database_name&gt;</code>.</p>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.4.0 -->
+<title>Tutorial: Adding HTTPS to a WordPress website | Rafael M. Teixeira</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="Tutorial: Adding HTTPS to a WordPress website" />
+<meta name="author" content="Rafael M Teixeira" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Since Google announced that it would boost the rank of websites with https, even websites that do not deal with sensitive data have a motivation to install a SSL certificate. In this tutorial I’ll go through the whole process of creation and installation of an SSL certificate to a self-hosted Wordpress website running on CentOS. Purchasing the SSL Certificate The first step is the purchase. You have to decide whether you want a wildcard certificate or not. The difference is that the wildcard certificate will certify all subdomains you may have, whilst the standard certificate will only cover the domain you provide. A wild card certificate would allow me to have https://db.rafaelmt.github.io for example, while the standard one would not. There are plenty of SSL certificate issuers around, many of them with very low cost for 1 year of the standard certificates. I went with GoDaddy, but the process should be similar for other providers. The purchase process is very straightforward. Don’t worry if you don’t get asked which domain you want to get certified at this point, you will provide this info later. Generating the Request Once you finished the checkout, you’ll be asked to provide a .csr file. This file is generated along with the private key of your certificate and it contains information about your domain, such as its name, location of your server etc. To generate the .csr file, execute the following command in your server: openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr It will ask you to fill up the information about the certificate. When done, it will generate two files: the server.key, which is the private key of your certificate, and the server.csr, which is the file containing the request. The private key should not be shared with anyone! If you lose this file, you will have to re-generate the certificate. Verify Domain Ownership Your certificate issuer will ask you to verify the ownership of your domain. The method may vary, but the most common one is requesting you to create a file with a given file name in the root of your domain. Some certificate issuers will also request you to provide some documentation to verify your identity. Download and Install Certificate Once the domain ownership is verified, the issuer will allow you to download your certificate. You will probably get two .crt files, one containing the certificate (let’s call it server.crt), and another one containing the certificate chain. The certificate file is the one that has only one certificate block (-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----). Copy the server.crt file to your server and place both server.crt and server.key in a place where Apache server can access. The typical location for the files are /etc/ssl/certs/server.crt /etc/ssl/private/server.key Configure HTTPD Add the following virtual host configuration to your /etc/httpd/conf/httpd.conf, changing the ServerName line to add your domain name: [gist 1dd778987d936944bacf] Make sure the following lines are present in your configuration: LoadModule ssl_module modules/mod_ssl.so Listen 443 https You also need to install the mod_ssl: sudo yum install mod_ssl Validate your configuration file by running the following command: sudo service httpd configtest Restart Apache and Test! Now let’s restart the apache server and test the https: sudo service httpd restart Fire up a browser and try to reach your server. Make sure you have opened the port 443 in iptables. Redirect HTTP to HTTPS Once you’re sure everything is working fine, you have to make sure users that access your website through http get redirected to https. To do so, add the following configuration to /etc/httpd/conf/httpd.conf: [gist 67c8e639bef4cebd2e4d]" />
+<meta property="og:description" content="Since Google announced that it would boost the rank of websites with https, even websites that do not deal with sensitive data have a motivation to install a SSL certificate. In this tutorial I’ll go through the whole process of creation and installation of an SSL certificate to a self-hosted Wordpress website running on CentOS. Purchasing the SSL Certificate The first step is the purchase. You have to decide whether you want a wildcard certificate or not. The difference is that the wildcard certificate will certify all subdomains you may have, whilst the standard certificate will only cover the domain you provide. A wild card certificate would allow me to have https://db.rafaelmt.github.io for example, while the standard one would not. There are plenty of SSL certificate issuers around, many of them with very low cost for 1 year of the standard certificates. I went with GoDaddy, but the process should be similar for other providers. The purchase process is very straightforward. Don’t worry if you don’t get asked which domain you want to get certified at this point, you will provide this info later. Generating the Request Once you finished the checkout, you’ll be asked to provide a .csr file. This file is generated along with the private key of your certificate and it contains information about your domain, such as its name, location of your server etc. To generate the .csr file, execute the following command in your server: openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr It will ask you to fill up the information about the certificate. When done, it will generate two files: the server.key, which is the private key of your certificate, and the server.csr, which is the file containing the request. The private key should not be shared with anyone! If you lose this file, you will have to re-generate the certificate. Verify Domain Ownership Your certificate issuer will ask you to verify the ownership of your domain. The method may vary, but the most common one is requesting you to create a file with a given file name in the root of your domain. Some certificate issuers will also request you to provide some documentation to verify your identity. Download and Install Certificate Once the domain ownership is verified, the issuer will allow you to download your certificate. You will probably get two .crt files, one containing the certificate (let’s call it server.crt), and another one containing the certificate chain. The certificate file is the one that has only one certificate block (-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----). Copy the server.crt file to your server and place both server.crt and server.key in a place where Apache server can access. The typical location for the files are /etc/ssl/certs/server.crt /etc/ssl/private/server.key Configure HTTPD Add the following virtual host configuration to your /etc/httpd/conf/httpd.conf, changing the ServerName line to add your domain name: [gist 1dd778987d936944bacf] Make sure the following lines are present in your configuration: LoadModule ssl_module modules/mod_ssl.so Listen 443 https You also need to install the mod_ssl: sudo yum install mod_ssl Validate your configuration file by running the following command: sudo service httpd configtest Restart Apache and Test! Now let’s restart the apache server and test the https: sudo service httpd restart Fire up a browser and try to reach your server. Make sure you have opened the port 443 in iptables. Redirect HTTP to HTTPS Once you’re sure everything is working fine, you have to make sure users that access your website through http get redirected to https. To do so, add the following configuration to /etc/httpd/conf/httpd.conf: [gist 67c8e639bef4cebd2e4d]" />
+<link rel="canonical" href="http://localhost:4000/en/2016/01/20/tutorial-adding-https-to-a-wordpress-website/" />
+<meta property="og:url" content="http://localhost:4000/en/2016/01/20/tutorial-adding-https-to-a-wordpress-website/" />
+<meta property="og:site_name" content="Rafael M. Teixeira" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-01-20T14:38:11+01:00" />
+<script type="application/ld+json">
+{"description":"Since Google announced that it would boost the rank of websites with https, even websites that do not deal with sensitive data have a motivation to install a SSL certificate. In this tutorial I’ll go through the whole process of creation and installation of an SSL certificate to a self-hosted Wordpress website running on CentOS. Purchasing the SSL Certificate The first step is the purchase. You have to decide whether you want a wildcard certificate or not. The difference is that the wildcard certificate will certify all subdomains you may have, whilst the standard certificate will only cover the domain you provide. A wild card certificate would allow me to have https://db.rafaelmt.github.io for example, while the standard one would not. There are plenty of SSL certificate issuers around, many of them with very low cost for 1 year of the standard certificates. I went with GoDaddy, but the process should be similar for other providers. The purchase process is very straightforward. Don’t worry if you don’t get asked which domain you want to get certified at this point, you will provide this info later. Generating the Request Once you finished the checkout, you’ll be asked to provide a .csr file. This file is generated along with the private key of your certificate and it contains information about your domain, such as its name, location of your server etc. To generate the .csr file, execute the following command in your server: openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr It will ask you to fill up the information about the certificate. When done, it will generate two files: the server.key, which is the private key of your certificate, and the server.csr, which is the file containing the request. The private key should not be shared with anyone! If you lose this file, you will have to re-generate the certificate. Verify Domain Ownership Your certificate issuer will ask you to verify the ownership of your domain. The method may vary, but the most common one is requesting you to create a file with a given file name in the root of your domain. Some certificate issuers will also request you to provide some documentation to verify your identity. Download and Install Certificate Once the domain ownership is verified, the issuer will allow you to download your certificate. You will probably get two .crt files, one containing the certificate (let’s call it server.crt), and another one containing the certificate chain. The certificate file is the one that has only one certificate block (-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----). Copy the server.crt file to your server and place both server.crt and server.key in a place where Apache server can access. The typical location for the files are /etc/ssl/certs/server.crt /etc/ssl/private/server.key Configure HTTPD Add the following virtual host configuration to your /etc/httpd/conf/httpd.conf, changing the ServerName line to add your domain name: [gist 1dd778987d936944bacf] Make sure the following lines are present in your configuration: LoadModule ssl_module modules/mod_ssl.so Listen 443 https You also need to install the mod_ssl: sudo yum install mod_ssl Validate your configuration file by running the following command: sudo service httpd configtest Restart Apache and Test! Now let’s restart the apache server and test the https: sudo service httpd restart Fire up a browser and try to reach your server. Make sure you have opened the port 443 in iptables. Redirect HTTP to HTTPS Once you’re sure everything is working fine, you have to make sure users that access your website through http get redirected to https. To do so, add the following configuration to /etc/httpd/conf/httpd.conf: [gist 67c8e639bef4cebd2e4d]","author":{"@type":"Person","name":"Rafael M Teixeira"},"@type":"BlogPosting","url":"http://localhost:4000/en/2016/01/20/tutorial-adding-https-to-a-wordpress-website/","headline":"Tutorial: Adding HTTPS to a WordPress website","dateModified":"2016-01-20T14:38:11+01:00","datePublished":"2016-01-20T14:38:11+01:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/en/2016/01/20/tutorial-adding-https-to-a-wordpress-website/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Rafael M. Teixeira" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Rafael M. Teixeira</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Tutorial: Adding HTTPS to a WordPress website</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2016-01-20T14:38:11+01:00" itemprop="datePublished">Jan 20, 2016
+      </time>• <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">Rafael M Teixeira</span></span></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Since Google <a href="https://googlewebmastercentral.blogspot.com.br/2014/08/https-as-ranking-signal.html">announced that it would boost the rank of websites with https</a>, even websites that do not deal with sensitive data have a motivation to install a SSL certificate. In this tutorial I’ll go through the whole process of creation and installation of an SSL certificate to a self-hosted Wordpress website running on CentOS.</p>
+<h2>Purchasing the SSL Certificate</h2>
+<p>The first step is the purchase. You have to decide whether you want a wildcard certificate or not. The difference is that the wildcard certificate will certify all subdomains you may have, whilst the standard certificate will only cover the domain you provide. A wild card certificate would allow me to have https://db.rafaelmt.github.io for example, while the standard one would not.</p>
+
+<p>There are plenty of SSL certificate issuers around, many of them with very low cost for 1 year of the standard certificates. I went with GoDaddy, but the process should be similar for other providers. The purchase process is very straightforward. Don’t worry if you don’t get asked which domain you want to get certified at this point, you will provide this info later.</p>
+<h2>Generating the Request</h2>
+<p>Once you finished the checkout, you’ll be asked to provide a .csr file. This file is generated along with the private key of your certificate and it contains information about your domain, such as its name, location of your server etc.</p>
+
+<p>To generate the .csr file, execute the following command in your server:</p>
+<pre>openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr</pre>
+<p>It will ask you to fill up the information about the certificate. When done, it will generate two files: the server.key, which is the private key of your certificate, and the server.csr, which is the file containing the request. The private key should not be shared with anyone! If you lose this file, you will have to re-generate the certificate.</p>
+<h2>Verify Domain Ownership</h2>
+<p>Your certificate issuer will ask you to verify the ownership of your domain. The method may vary, but the most common one is requesting you to create a file with a given file name in the root of your domain.</p>
+
+<p>Some certificate issuers will also request you to provide some documentation to verify your identity.</p>
+<h2>Download and Install Certificate</h2>
+<p>Once the domain ownership is verified, the issuer will allow you to download your certificate. You will probably get two .crt files, one containing the certificate (let’s call it server.crt), and another one containing the certificate chain. The certificate file is the one that has only one certificate block (<code>-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----</code>).</p>
+
+<p>Copy the server.crt file to your server and place both server.crt and server.key in a place where Apache server can access. The typical location for the files are
+<code>/etc/ssl/certs/server.crt
+/etc/ssl/private/server.key
+</code></p>
+<h2>Configure HTTPD</h2>
+<p>Add the following virtual host configuration to your /etc/httpd/conf/httpd.conf, changing the ServerName line to add your domain name:
+[gist 1dd778987d936944bacf]
+Make sure the following lines are present in your configuration:</p>
+<pre>LoadModule ssl_module modules/mod_ssl.so</pre>
+<pre>Listen 443 https</pre>
+<p>You also need to install the mod_ssl:</p>
+<pre>sudo yum install mod_ssl</pre>
+<p>Validate your configuration file by running the following command:</p>
+<pre>sudo service httpd configtest</pre>
+<h2>Restart Apache and Test!</h2>
+<p>Now let’s restart the apache server and test the https:</p>
+<pre>sudo service httpd restart</pre>
+<p>Fire up a browser and try to reach your server. Make sure you have opened the port 443 in iptables.</p>
+<h2>Redirect HTTP to HTTPS</h2>
+<p>Once you’re sure everything is working fine, you have to make sure users that access your website through http get redirected to https. To do so, add the following configuration to /etc/httpd/conf/httpd.conf:
+[gist 67c8e639bef4cebd2e4d]</p>
+
+  </div><a class="u-url" href="/en/2016/01/20/tutorial-adding-https-to-a-wordpress-website/" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Rafael M. Teixeira</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Rafael M. Teixeira</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/rafaelmt"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">rafaelmt</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Half-stack developer, sometimes I write about stuff</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,39 @@
+<p>Since Google <a href="https://googlewebmastercentral.blogspot.com.br/2014/08/https-as-ranking-signal.html">announced that it would boost the rank of websites with https</a>, even websites that do not deal with sensitive data have a motivation to install a SSL certificate. In this tutorial I’ll go through the whole process of creation and installation of an SSL certificate to a self-hosted Wordpress website running on CentOS.</p>
+<h2>Purchasing the SSL Certificate</h2>
+<p>The first step is the purchase. You have to decide whether you want a wildcard certificate or not. The difference is that the wildcard certificate will certify all subdomains you may have, whilst the standard certificate will only cover the domain you provide. A wild card certificate would allow me to have https://db.rafaelmt.github.io for example, while the standard one would not.</p>
+
+<p>There are plenty of SSL certificate issuers around, many of them with very low cost for 1 year of the standard certificates. I went with GoDaddy, but the process should be similar for other providers. The purchase process is very straightforward. Don’t worry if you don’t get asked which domain you want to get certified at this point, you will provide this info later.</p>
+<h2>Generating the Request</h2>
+<p>Once you finished the checkout, you’ll be asked to provide a .csr file. This file is generated along with the private key of your certificate and it contains information about your domain, such as its name, location of your server etc.</p>
+
+<p>To generate the .csr file, execute the following command in your server:</p>
+<pre>openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr</pre>
+<p>It will ask you to fill up the information about the certificate. When done, it will generate two files: the server.key, which is the private key of your certificate, and the server.csr, which is the file containing the request. The private key should not be shared with anyone! If you lose this file, you will have to re-generate the certificate.</p>
+<h2>Verify Domain Ownership</h2>
+<p>Your certificate issuer will ask you to verify the ownership of your domain. The method may vary, but the most common one is requesting you to create a file with a given file name in the root of your domain.</p>
+
+<p>Some certificate issuers will also request you to provide some documentation to verify your identity.</p>
+<h2>Download and Install Certificate</h2>
+<p>Once the domain ownership is verified, the issuer will allow you to download your certificate. You will probably get two .crt files, one containing the certificate (let’s call it server.crt), and another one containing the certificate chain. The certificate file is the one that has only one certificate block (<code>-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----</code>).</p>
+
+<p>Copy the server.crt file to your server and place both server.crt and server.key in a place where Apache server can access. The typical location for the files are
+<code>/etc/ssl/certs/server.crt
+/etc/ssl/private/server.key
+</code></p>
+<h2>Configure HTTPD</h2>
+<p>Add the following virtual host configuration to your /etc/httpd/conf/httpd.conf, changing the ServerName line to add your domain name:
+[gist 1dd778987d936944bacf]
+Make sure the following lines are present in your configuration:</p>
+<pre>LoadModule ssl_module modules/mod_ssl.so</pre>
+<pre>Listen 443 https</pre>
+<p>You also need to install the mod_ssl:</p>
+<pre>sudo yum install mod_ssl</pre>
+<p>Validate your configuration file by running the following command:</p>
+<pre>sudo service httpd configtest</pre>
+<h2>Restart Apache and Test!</h2>
+<p>Now let’s restart the apache server and test the https:</p>
+<pre>sudo service httpd restart</pre>
+<p>Fire up a browser and try to reach your server. Make sure you have opened the port 443 in iptables.</p>
+<h2>Redirect HTTP to HTTPS</h2>
+<p>Once you’re sure everything is working fine, you have to make sure users that access your website through http get redirected to https. To do so, add the following configuration to /etc/httpd/conf/httpd.conf:
+[gist 67c8e639bef4cebd2e4d]</p>
